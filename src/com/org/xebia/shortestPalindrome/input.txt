@@ -1,0 +1,4 @@
+palin
+a
+ab
+aba
