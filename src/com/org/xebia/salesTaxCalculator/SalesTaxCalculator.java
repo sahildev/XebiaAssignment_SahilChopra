@@ -33,14 +33,16 @@ public class SalesTaxCalculator {
 			while ((st = br.readLine()) != null) {
 				System.out.println(st);
 
-				Map<String, String> map = generateItemlist(st);
+				Map<String, Double> map = generateItemlist(st);
 
 				for (String key : map.keySet()) {
 
-					String value = map.get(key);
+					Double value = map.get(key);
 
 					Boolean exceptionStatus = checkExempted(key);
 					Boolean importApplicableStatus = checkImported(key);
+
+					value = getFinalPrice(value, exceptionStatus, importApplicableStatus);
 
 				}
 
@@ -52,8 +54,17 @@ public class SalesTaxCalculator {
 		}
 	}
 
+	private static Double getFinalPrice(Double value, Boolean exceptionStatus, Boolean importApplicableStatus) {
+
+		return value;
+
+	}
+
 	private static Boolean checkImported(String key) {
 		Boolean importApplicableStatus = false;
+
+		if (key.contains("imported"))
+			importApplicableStatus = true;
 
 		return importApplicableStatus;
 	}
@@ -67,9 +78,9 @@ public class SalesTaxCalculator {
 		return exceptionStatus;
 	}
 
-	private static Map<String, String> generateItemlist(String st) {
+	private static Map<String, Double> generateItemlist(String st) {
 
-		Map<String, String> map = new HashMap<>();
+		Map<String, Double> map = new HashMap<>();
 
 		String inputString = st.replace(" at ", " : ");
 
@@ -80,7 +91,7 @@ public class SalesTaxCalculator {
 			builder = builder.append(arr[i]).append(" ");
 		}
 
-		map.put(builder.toString(), arr[arr.length - 1]);
+		map.put(builder.toString(), Double.valueOf(arr[arr.length - 1]));
 		return map;
 
 	}
