@@ -26,8 +26,8 @@ public class SalesTaxCalculator {
 			BufferedReader br = new BufferedReader(new FileReader(f));
 
 			Map<String, Double> itemListMap = new HashMap<>();
-			int salesTax = 0;
-			int total = 0;
+			Double salesTax = 0.0;
+			Double total = 0.0;
 
 			String st;
 			while ((st = br.readLine()) != null) {
@@ -42,10 +42,27 @@ public class SalesTaxCalculator {
 					Boolean exceptionStatus = checkExempted(key);
 					Boolean importApplicableStatus = checkImported(key);
 
-					value = getFinalPrice(value, exceptionStatus, importApplicableStatus);
+					Map<Double, Double> salesTaxValueMap  = getFinalPrice(value, exceptionStatus, importApplicableStatus);
+					
+					for (Double itemSalesTax : salesTaxValueMap.keySet()) {
+						
+						salesTax = salesTax + itemSalesTax;
+						value = salesTaxValueMap.get(itemSalesTax);
+						total = total + salesTaxValueMap.get(itemSalesTax);
+					}
+					
+					itemListMap.put(key, value);
+					itemListMap.put("Sales Taxes: ", salesTax);
+					itemListMap.put("Total: ", total);
+					
 
 				}
 
+			}
+			
+			
+			for(String key : itemListMap.keySet()) {
+				System.out.println(key + itemListMap.get(key).toString());
 			}
 
 		} catch (IOException e) {
@@ -54,9 +71,33 @@ public class SalesTaxCalculator {
 		}
 	}
 
-	private static Double getFinalPrice(Double value, Boolean exceptionStatus, Boolean importApplicableStatus) {
+	private static Map<Double, Double> getFinalPrice(Double value, Boolean exceptionStatus, Boolean importApplicableStatus) {
 
-		return value;
+		final int SALES_TAX_RATE = 10;
+		final int IMPORT_DUTY = 5;
+
+		Double salesTax = 0.0;
+		Double importTax = 0.0;
+
+		Map<Double, Double> salesTaxValueMap = new HashMap<>();
+
+		if (exceptionStatus == false && importApplicableStatus == false) {
+			salesTax = (value * SALES_TAX_RATE) / 100;
+
+			salesTaxValueMap.put(salesTax, value + salesTax);
+		}
+
+		else if (exceptionStatus == false && importApplicableStatus == true) {
+			salesTax = (value * SALES_TAX_RATE) / 100;
+			importTax = (value * IMPORT_DUTY) / 100;
+			salesTaxValueMap.put(salesTax, value + salesTax + importTax);
+		}
+
+		else {
+			salesTaxValueMap.put(salesTax, value);
+		}
+
+		return salesTaxValueMap;
 
 	}
 
